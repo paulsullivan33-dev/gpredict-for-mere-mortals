@@ -1,0 +1,73 @@
+# Defining a ground station (the QTH) and pointing a module
+# at it. Driven under Xvfb with xdotool; screenshots in this lab.
+#
+# The example station is invented for the lab: a round-number
+# spot on the US plains. No real station, no real call sign.
+
+# Preferences > General > Ground Stations lists the stations
+# Gpredict knows. On first run it holds exactly one, the
+# bundled sample (screenshot ground-stations-list.png shows the
+# table columns: Name, Location, Lat, Lon, Alt, QRA locator,
+# Default):
+#   sample - Copenhagen, Denmark - 55.6167 - 12.6500 - 5 - JO65HO
+
+$ cat ~/.config/Gpredict/sample.qth
+DESCRIPTION=Copenhagen, Denmark [Sample file - do not edit]
+LAT=55.6167
+LON=12.6500
+ALT=5
+WX=EKCH
+LOCATOR=JO65HO
+
+# The New-station editor (opened and inspected on screen) has
+# fields for Name, Description, a Location gazetteer, Lat with
+# N/S, Lon with E/W, Locator, Altitude in metres, and a weather
+# station code. Text entry into that editor was unreliable
+# under the lab's window-manager-less Xvfb, so the station was
+# written as a file in the app's exact format and read back
+# by the app -- which is itself a finding: a .qth is plain
+# text, and Gpredict trusts it.
+
+$ cat ~/.config/Gpredict/prairie.qth
+DESCRIPTION=Fictional example ground station
+LOCATION=Example, USA
+LAT=40.0000
+LON=-100.0000
+ALT=700
+WX=
+
+# After a restart, Preferences lists the new station and has
+# computed its Maidenhead locator itself (screenshot
+# ground-stations-list.png):
+#   prairie - Example, USA - 40.0000 - -100.0000 - 700 - EN00AA
+
+# Marking prairie as the "Default" station does NOT move an
+# existing module: a module keeps its own QTH. The module was
+# switched instead, via the module menu (the hamburger in the
+# module's corner) > Configure... , the "Edit module" dialog:
+# Ground station set to prairie, OK. The dialog needed the
+# keyboard (Tab to OK, Return) -- its buttons ignored the
+# lab's synthetic mouse clicks.
+
+# Proof the module took the change -- Gpredict rewrote the
+# module file itself:
+$ cat ~/.config/Gpredict/modules/Amateur.mod
+[GLOBAL]
+SATELLITES=39444;43017;24278;25544;27607
+QTHFILE=prairie.qth
+
+[SINGLE_SAT]
+SELECTED=39444
+
+# Two things changed at once in that save: QTHFILE points at
+# prairie.qth, and the satellite list dropped 40967 -- the
+# bundled catalogue has no data for it (see t01), so the
+# module now lists only the five satellites that load.
+
+# On screen (screenshot module-prairie-qth.png): the map
+# header reads "prairie - Example, USA", the station marker
+# sits on the US plains, and every number in the data panel
+# moved with the viewpoint. AO-73 from Copenhagen had its
+# next AOS at 15:55:31; from prairie the same satellite's
+# next AOS is 20:39:50, azimuth 117.02, elevation -64.71.
+# Same satellite, same elements -- different chair.

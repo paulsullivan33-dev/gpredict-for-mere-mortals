@@ -1,0 +1,43 @@
+# Predicting passes for real: the per-satellite pass table
+# and the all-satellites timeline. Driven under Xvfb; the
+# module is running from the prairie station (t03) with the
+# refreshed elements (t02). All times UTC, the sandbox clock.
+
+# Route used: right-click a satellite in the polar view.
+# The context menu offers:
+#   Satellite info
+#   Show current pass
+#   Show next pass
+#   Future passes
+#   Sky track (tick box)
+# ("Future passes" chosen. The same table is the answer to
+# "when is it next up, and how good will the pass be?")
+
+# "Upcoming passes for AO-91" (screenshot
+# upcoming-passes-ao91.png) -- columns AOS, LOS, Duration,
+# Max El, AOS Az, LOS Az. First rows, as displayed:
+#   2026/11/02 15:23:31  15:36:43  00:13:11  31.58  187.68  337.76
+#   2026/11/03 02:58:02  03:08:45  00:10:42  26.47   23.33  168.00
+#   2026/11/03 04:32:25  04:42:23  00:09:57  16.96  354.49  230.80
+#   2026/11/03 13:38:11  13:49:19  00:11:08  16.79  126.03    6.99
+#   2026/11/03 15:11:10  15:23:58  00:12:47  44.43  181.81  341.44
+#   2026/11/04 02:45:24  02:55:31  00:10:06  18.30   28.13  158.68
+#   2026/11/04 04:19:25  04:29:50  00:10:25  23.28  358.43  222.04
+#   2026/11/04 13:25:54  13:36:12  00:10:18  12.34  117.62   11.16
+#   2026/11/04 14:58:13  15:11:10  00:12:56  63.18  174.26  344.98
+# The list scrolls on for days. The 63.18-degree pass on
+# Nov 4 is the best of this window -- nearly overhead.
+# The dialog's Print and Save buttons were not used in the
+# lab; they are described, not demonstrated.
+
+# The wide view: module menu > "Sky at a glance" (screenshot
+# sky-at-a-glance.png). One horizontal timeline, 16:00-23:00
+# UTC, one coloured block per pass: SO-50 three times in the
+# window, AO-73 twice, the first AO-73 block starting at
+# 20:40 -- matching the data panel's "Next Event: AOS
+# 2026/11/02 20:39:50" for AO-73 from this station.
+
+# Cross-check between views, same minute, same station:
+# the polar view header counted down "Next: SO-50 in 27:51"
+# while the map showed SO-50 over Australia -- a satellite
+# half a world away can still be the next one up for you.

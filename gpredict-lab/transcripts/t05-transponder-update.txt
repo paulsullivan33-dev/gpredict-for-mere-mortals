@@ -1,0 +1,48 @@
+# Updating the transponder data: Edit > Update transponder
+# data. This is the second database Gpredict keeps -- not
+# where satellites are, but what their radios do.
+
+# Before the update, the transponder directory is empty:
+$ ls ~/.config/Gpredict/trsp/ | wc -l
+0
+
+# The update dialog announces what it fetches:
+#   "Updating transponder files from network"
+#   "Fetching transmitters.json"
+# (transmitters.json is the SatNOGS database export -- the
+# community-maintained catalogue of satellite transmitters,
+# beacons and transponders.) Then: "Finished"
+# (screenshot transponder-update-finished.png).
+
+$ ls ~/.config/Gpredict/trsp/ | wc -l
+2695
+
+# One file per satellite, named by catalogue number. The
+# file for AO-91 (43017), the satellite used in t04:
+$ cat ~/.config/Gpredict/trsp/43017.trsp
+
+[DUV TLM]
+DOWN_LOW=145960000
+DOWN_HIGH=145960000
+MODE=DUV
+BAUD=200
+
+[Mode U/V FM Voice (no CTCSS any longer)]
+UP_LOW=435250000
+DOWN_LOW=145960000
+MODE=FM
+
+# Frequencies are in hertz: AO-91's FM repeater listens on
+# 435.250 MHz and talks on 145.960 MHz; its data-under-voice
+# telemetry sits on the same downlink. Note UP and DOWN --
+# this file is what lets the radio-control panel (t06) know
+# both ends of the conversation.
+
+# Housekeeping wart, recorded for the troubleshooting
+# chapter: the log filled with lines like
+#   trsp_update_files: Failed to remove .../98197.trsp
+# for old files during the update. The update finished and
+# the resulting files parse and work (t06 uses them), so
+# the warnings were noise on this run -- but they are the
+# kind of noise that makes a new user stop trusting the
+# tool, and the guide says so.

@@ -1,0 +1,75 @@
+# Radio control, for real -- against a radio that does not
+# exist. Hamlib ships a "Dummy" rig: a software radio that
+# obeys every command and holds its settings, so the whole
+# Gpredict -> daemon -> radio chain can be run with no RF
+# hardware at all. The daemon is rigctld; the only port the
+# lab is allowed is 18084, on loopback.
+
+$ rigctld -m 1 -T 127.0.0.1 -t 18084 -vvv &     # -m 1 = Dummy
+$ ss -tlnp | grep 18084
+LISTEN 0  0  127.0.0.1:18084  0.0.0.0:*  users:(("rigctld",...))
+
+# The daemon answers a client before Gpredict is involved
+# (rigctl, model 2 = "talk to a rigctld"):
+$ printf 'f\nF 145960000\nf\n' | rigctl -m 2 -r 127.0.0.1:18084
+Rig command: Frequency: 145000000      <- the dummy's default
+Rig command:                            <- F set, no complaint
+Rig command: Frequency: 145960000      <- and it held
+
+# Gpredict side: Preferences > Interfaces > Radios > Add new.
+# The editor's fields: Name, Host (prefilled "localhost"),
+# Port (prefilled 4532, hamlib's standard), Radio type
+# ("RX only" chosen), PTT status, VFO Up/Down, LO Down and
+# LO Up offsets in MHz, and AOS/LOS signalling ticks.
+# Saved as Name=LabDummy, Port=18084. What Preferences writes
+# to disk when OK is pressed is a plain INI file:
+
+$ cat ~/.config/Gpredict/hwconf/LabDummy.rig
+[Radio]
+Host=localhost
+Port=18084
+LO=0
+LO_UP=0
+Type=0
+PTT=0
+Cycle=0
+SIGNAL_AOS=false
+SIGNAL_LOS=false
+
+# FIRST ENGAGE ATTEMPT FAILED, silently. Lessons in it:
+# "localhost" on this machine resolves to ::1 first
+# ($ getent hosts localhost -> ::1), and rigctld was
+# listening on IPv4 only. Gpredict tried, was refused, and
+# said nothing anywhere a new user would look.
+# Fix: the literal address. The .rig file was edited
+# (Host=127.0.0.1), rigctld restarted without -T (all local
+# interfaces), Gpredict restarted, and the panel reopened.
+
+# Module menu > Radio Control. The panel (screenshot
+# radio-control-tracking.png) targets AO-73 and its
+# "CW Beacon" transponder (145.890 MHz, from t05's data),
+# shows Doppler live (+1,988 Hz at the moment of the
+# screenshot), an AOS countdown, and the device list with
+# LabDummy in it. Pressing "Engage":
+
+$ ss -tnp | grep 18084
+ESTAB 0 0 127.0.0.1:51816 127.0.0.1:18084 users:(("gpredict",...))
+ESTAB 0 0 127.0.0.1:18084 127.0.0.1:51816 users:(("rigctld",...))
+
+$ printf 'f\n' | rigctl -m 2 -r 127.0.0.1:18084
+Rig command: Frequency: 145890000
+
+# Engaging alone parked the dummy on the beacon's nominal
+# frequency. Pressing "Track" is what chases the Doppler --
+# three readings, ten seconds apart, from the dummy itself:
+Frequency: 145891969
+Frequency: 145891978
+Frequency: 145891988
+
+# 145.890 MHz nominal + 1,988 Hz of Doppler, creeping about
+# a hertz a second as AO-73's range rate changes -- and the
+# panel's own "Radio:" readout at that moment said
+# 145.891.988 Hz. The panel, the daemon and the client
+# agree to the hertz. Nothing transmitted anywhere: the
+# dummy is a fiction that keeps state, which is exactly
+# what makes it a good first radio.

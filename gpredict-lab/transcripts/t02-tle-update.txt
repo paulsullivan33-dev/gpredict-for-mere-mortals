@@ -1,0 +1,57 @@
+# Updating the orbital data from the network, using the
+# program's own updater: Edit > Update TLE data from network.
+# Driven under Xvfb with xdotool; screenshots in this lab.
+
+# BEFORE -- the ISS elements are the bundled January 2021 set:
+$ grep TLE1 ~/.config/Gpredict/satdata/25544.sat
+TLE1=1 25544U 98067A   21024.23809123  .00000873  00000-0  24089-4 0  9992
+
+# The update dialog names its sources as it fetches them.
+# First file (screenshot tle-update-fetching.png):
+#   "Fetching https://www.amsat.org/amsat/ftp/keps/current/nasabare.txt"
+# Second file (a minute later):
+#   "Fetching https://celestrak.org/NORAD/elements/amateur.txt"
+# ...and the rest of the built-in list. The whole sweep took
+# about two and a half minutes on this connection.
+
+# FINISHED (screenshot tle-update-finished.png):
+#   Satellites updated:  49
+#   Satellites skipped:  0
+#   Missing Satellites:  785
+#   New Satellites:      48
+
+# AFTER -- same file, fresh elements (epoch 26305 = 2026,
+# day 305, i.e. 1 November 2026):
+$ grep TLE1 ~/.config/Gpredict/satdata/25544.sat
+TLE1=1 25544U 98067A   26305.78918649  .00005925  00000-0  11503-3 0  9992
+
+$ grep TLE1 ~/.config/Gpredict/satdata/43017.sat   (AO-91)
+TLE1=1 43017U 17073E   26306.11027436  .00007922  00000-0  33318-3 0  9995
+
+$ ls ~/.config/Gpredict/satdata/*.sat | wc -l
+882
+# (was 847 before the update; 49 updated + 48 new = 97 files
+# now carry 2026 elements)
+
+# The difference is not cosmetic. With the 2021 elements the
+# AO-73 panel predicted its next pass over the sample ground
+# station at 21:23:06 with orbit number 70114. Seconds after
+# the update, the same panel read AOS 15:55:31 and orbit
+# 70056 -- and the ISS marker had moved from the South
+# Atlantic to north-east Asia. Stale elements do not fail
+# loudly; they just put every satellite in the wrong place.
+
+# Why "Missing Satellites: 785"? The updater refreshes the
+# satellites that appear in the files it fetches. Most of the
+# 847 bundled .sat files describe objects the default fetch
+# list does not carry (old debris and retired payloads among
+# them), so their elements stay at the bundled 2021 values.
+# The log also shows two fetched files carrying no usable
+# data on this run:
+$ grep "No valid TLE" ~/.config/Gpredict/logs/gpredict.log
+2026/11/02 15:25:58|1|tle_update_from_files: No valid TLE data found in file-12.tle
+2026/11/02 15:25:58|1|tle_update_from_files: No valid TLE data found in file-13.tle
+
+# And satellite 40967 is still absent afterwards -- it is in
+# none of the fetched files, so the module still loads five
+# of its six satellites.

@@ -1,0 +1,27 @@
+site_name: GPredict for Mere Mortals
+site_description: A satellite tracker that shows where a satellite is right now and when it will next pass over your station. Reading the map, polar and data views, predicting passes days ahead, and driving a real radio and antenna rotator through Hamlib, with the limits stated plainly.
+site_url: https://paulsullivan33-dev.github.io/gpredict-for-mere-mortals/
+copyright: 'Part of <a href="https://paulsullivan33-dev.github.io/mere-mortals/">For Mere Mortals</a> · Text <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>, code MIT'
+
+# Guides live at the repo root (nice for GitHub browsing).
+# The deploy workflow copies them into docs/ before building.
+theme:
+  name: material
+
+nav:
+  - Home: index.md
+  - What Gpredict Is: what-gpredict-is.md
+  - The Moving Parts: the-moving-parts.md
+  - Installing Gpredict: installing-gpredict.md
+  - Your Ground Station: your-ground-station.md
+  - Keeping the Data Fresh: keeping-the-data-fresh.md
+  - First Launch and the Three Views: the-three-views.md
+  - Predicting Passes: predicting-passes.md
+  - Modules and Satellites: modules-and-satellites.md
+  - Radio and Rotator Control: radio-and-rotator-control.md
+  - Recipes: recipes.md
+  - The Neighbours: the-neighbours.md
+  - Limits: limits.md
+  - Troubleshooting: troubleshooting.md
+  - Glossary: glossary.md
+  - Writing Criteria: criteria.md

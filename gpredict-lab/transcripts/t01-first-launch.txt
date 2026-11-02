@@ -1,0 +1,67 @@
+# First launch, under a virtual display (Xvfb, 1280x960).
+# The sandbox has no real screen; Xvfb is a genuine X server
+# whose framebuffer we capture with scrot.
+$ Xvfb :99 -screen 0 1280x960x24 &
+$ DISPLAY=:99 gpredict &
+
+$ xdotool search --name "" getwindowname %@
+gpredict
+Gpredict: Amateur
+
+# Screenshot: screenshots/first-launch-default-size.png and
+# screenshots/main-window.png in this lab. What they show:
+# - The default module, "Amateur", opens on its own.
+# - A world map with ground tracks and coverage circles for
+#   FO-29, SO-50, the ISS and AO-73, plus "Next: AO-91".
+# - A polar (radar) view, currently empty, with the next pass
+#   counted down: "Next: FO-29 in 24:29".
+# - A data panel for AO-73 computed live: azimuth, elevation,
+#   slant range, range rate, next event (AOS 2026/11/02
+#   21:23:06), footprint, altitude, velocity, Doppler at
+#   100 MHz, orbit number 70114.
+# - Ground station "sample - Copenhagen, Denmark".
+
+# The files the first run creates:
+$ ls ~/.config/Gpredict/
+hwconf  logs  modules  sample.qth  satdata  trsp
+
+$ cat ~/.config/Gpredict/sample.qth
+[QTH]
+DESCRIPTION=Sample QTH file
+LOCATION=Copenhagen, Denmark
+LAT=55.6167
+LON=12.6500
+ALT=5
+WX=EKCH
+
+$ cat ~/.config/Gpredict/modules/Amateur.mod
+[GLOBAL]
+SATELLITES=24278;25544;27607;39444;40967;43017;
+
+# = FO-29, ISS, SO-50, AO-73, (40967), AO-91 by NORAD number.
+
+$ ls ~/.config/Gpredict/satdata | wc -l
+847
+
+$ cat ~/.config/Gpredict/satdata/25544.sat
+[Satellite]
+VERSION=1.1
+NAME=ISS (ZARYA)
+NICKNAME=ISS
+TLE1=1 25544U 98067A   21024.23809123  .00000873  00000-0  24089-4 0  9992
+TLE2=2 25544  51.6466 334.7081 0002297 283.5222 220.9128 15.48881006266289
+
+# Read the epoch in TLE1: "21024" = year 2021, day 24.
+# The bundled starter data (built into
+# /usr/share/gpredict/data/satdata/satellites.dat) is from
+# January 2021 -- nearly six years stale on the day of this
+# run (2026-11-02). Everything the first launch plotted was
+# computed from those old elements.
+
+# One module satellite does not load at all:
+$ tail ~/.config/Gpredict/logs/gpredict.log
+2026/11/02 15:22:03|1|gtk_sat_data_read_sat: Failed to load data from /home/hatch/.config/Gpredict/satdata/40967.sat (No such file or directory)
+2026/11/02 15:22:03|1|gtk_sat_module_load_sats: Error reading data for #40967
+
+# 40967 has no .sat file: the module asks for six satellites
+# and the program quietly carries on with five.

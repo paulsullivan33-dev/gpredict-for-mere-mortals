@@ -1,0 +1,66 @@
+# Rotator (antenna) control, same pattern as the radio:
+# hamlib's rotctld, its Dummy rotator (model 1), same single
+# lab port -- the radio daemon was stopped first, because
+# one port serves one daemon.
+
+$ rotctld -m 1 -t 18084 -vvv &
+$ printf 'p\n' | rotctl -m 2 -r 127.0.0.1:18084
+Rotator command: Azimuth: 0.00
+Elevation: 0.00
+
+# The rotator editor in Preferences > Interfaces > Rotators
+# asks for the same host/port pair plus the rotator's
+# travel limits. The lab's config was written directly as
+# a file, in the same INI style as the .rig file (t06);
+# Gpredict loaded it without complaint, which the Antenna
+# Control panel confirmed by offering "LabRotor" as its
+# device. Limits chosen to match a common amateur rotator:
+# 0-450 degrees of azimuth, 0-180 of elevation.
+
+$ cat ~/.config/Gpredict/hwconf/LabRotor.rot
+[Rotator]
+Host=127.0.0.1
+Port=18084
+MinAz=0
+MaxAz=450
+MinEl=0
+MaxEl=180
+AzType=0
+Cycle=0
+
+# Module menu > Antenna Control (the panel's title says
+# "Rotator Control"). Before anything is engaged it shows
+# default setpoints (Az 180.00, El 45.00, "Read: ---"), the
+# target's numbers for AO-73 (Az 69.99, El -39.92 -- below
+# the horizon, next pass in 4h49m), and a polar plot of the
+# next pass's track with the minutes marked along it.
+
+# Engage: the connection appears, and the panel starts
+# reading the dummy's real position back:
+$ ss -tnp | grep 18084
+ESTAB ... 127.0.0.1:35710 127.0.0.1:18084 users:(("gpredict",...))
+ESTAB ... 127.0.0.1:18084 127.0.0.1:35710 users:(("rotctld",...))
+
+# The dummy slews toward the setpoints at its own pace --
+# three reads over half a minute:
+Azimuth: 5.06    Elevation: 5.06
+Azimuth: 44.02   Elevation: 44.02
+# (panel: Azimuth Read 45.68, Elevation Read 45.00 --
+#  elevation had arrived at 45; azimuth was still travelling)
+
+# Track pressed. The interesting behaviour: AO-73 is BELOW
+# the horizon, so there is nothing to point at yet -- and
+# the controller knows it. Elevation drove down to 0.00 and
+# stopped (a real rotator is never sent below the horizon),
+# and the antenna pre-positioned itself at the azimuth of
+# the next pass's rise point and waited there:
+Azimuth: 83.95   Elevation: 30.15     <- slewing
+Azimuth: 107.98  Elevation: 0.00      <- parked
+Azimuth: 107.98  Elevation: 0.00      <- still parked, 12 s on
+
+# 107.98 degrees is where the 20:39 AO-73 pass breaks the
+# horizon in the panel's own track plot. When the pass
+# starts, the antenna is already standing where the
+# satellite will appear. (Screenshot
+# rotator-control-tracking.png: commanded 107.98 / 0.00,
+# Read 107.98 / 0.00, target Az 68.13 El -38.63.)
